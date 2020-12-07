@@ -10,19 +10,23 @@ func HelloHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
 }
 
-//Form Handler
+
+
 func formHandler(w http.ResponseWriter, r *http.Request) {
   if err := r.ParseForm(); err != nil {
       fmt.Fprintf(w, "ParseForm() err: %v", err)
       return
   }
-  fmt.Fprintf(w, "POST request successful")
+
+    //Send User A File
+    http.ServeFile(w, r, "./public/index.html")
+  //fmt.Fprintf(w, "POST request successful")
   name := r.FormValue("name")
   address := r.FormValue("address")
 
   //Print to client
-  fmt.Fprintf(w, "Name = %s\n", name)
-  fmt.Fprintf(w, "Address = %s\n", address)
+  //fmt.Fprintf(w, "Name = %s\n", name)
+  //fmt.Fprintf(w, "Address = %s\n", address)
 
   //Print to server console
   //fmt.Printf("Name = %s\n", name)         //the %s\n is just to format the string writing?
@@ -34,7 +38,7 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
     // Register handler for default route
     http.HandleFunc("/hello", HelloHandler)
-    http.HandleFunc("/form", formHandler)
+    http.HandleFunc("/formPOST", formHandler)
 
     //For serving clients files
     fileServer := http.FileServer(http.Dir("./public"))
