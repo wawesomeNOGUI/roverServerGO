@@ -1,0 +1,26 @@
+@import url(https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap);
+@import url(https://www.fontspace.com/jam-session-font-f44450);
+body {
+  /* background-color: none..class{ */
+  background:rgba(5,5,5,0.7);
+  /* background: #000065; */
+  background-image: url("https://www.minecraft.net/etc.clientlibs/minecraft/clientlibs/main/resources/img/minecraft-creeper-face.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  color: white;
+  font-size: 2em;
+  
+}
+
+h1 {
+  font-family: "Press Start 2P", monospace !important;
+  color: purple;
+  text-align: center;
+}
+
+p {
+  color: aquamarine;
+  font-family: Jam Session;
+  font-style: bold;
+   text-align: center;
+}

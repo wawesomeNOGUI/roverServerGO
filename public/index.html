@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+
+<html>
+
+<body>
+<h1> Hiiiiiiiii we got some pixel font oh yeah</h1>
+<p> blaaaaa</p>
+
+<link rel="stylesheet" href="ah.css">
+
+
+<canvas id="myCanvas" ></canvas>
+
+
+
+<head>
+
+</head>
+<script>
+var myString = "ஆண்டாள்";
+
+for(var i = 0; i<myString.length; i++){
+    console.log(myString.charAt(i));
+}
+console.log('in between');
+
+var myString = "ஆண்டாள்";
+var myArray =[ ];
+for(var i = 0; i<myString.length; i++){
+    myArray.push(myString.charAt(i));
+}
+
+//Then print each character however you want example:
+for(var i=0; i<myArray.length; i++){
+    console.log(myArray[i]);
+}
+
+
+var animate = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+        window.setTimeout(callback, 1000/60)
+    };
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+
+var date1 = new Date();
+console.log(date1.getUTCMinutes());
+console.log(date1.getUTCMilliseconds());
+
+
+
+var render = function () {
+ ctx.imageSmoothingEnabled = false;     //anti aliasing off
+
+
+};
+//===========================================================
+
+
+//==================================Update===============================================
+var update = function() {
+
+	keyPress();
+
+};
+//======================================================================================
+
+
+
+
+
+
+
+//Client Loop
+var step = function() {
+update();
+render();
+//console.log(allPX[myServerLocation]);
+animate(step);
+};
+
+//==================================================
+
+
+var keyPress = function() {
+  for(var key in keysDown) {
+      var value = Number(key);
+  	//var value = keysDown[0];
+
+     if (value == 65) {
+
+          } else if(value == 68){
+
+
+
+          } else if(value == 87){
+
+
+
+
+          } else if(value == 83){
+
+          }
+
+    }
+
+};
+
+
+
+
+
+
+
+
+
+
+//================Event Listeners========================
+
+
+
+
+
+document.body.appendChild(canvas);
+animate(step);
+
+
+window.addEventListener("keydown", function (event) {
+keysDown[event.keyCode] = true;
+
+});
+
+
+window.addEventListener("keyup", function (event) {
+    delete keysDown[event.keyCode];
+});
+
+</script>
+
+</body>
+</html>
