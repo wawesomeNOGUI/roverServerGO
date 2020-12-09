@@ -27,6 +27,7 @@ import (
         //_ "github.com/pion/mediadevices/pkg/driver/microphone" // This is required to register microphone adapter
 )
 
+var clientSDP string
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
   if err := r.ParseForm(); err != nil {
@@ -39,8 +40,9 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
   //fmt.Fprintf(w, "POST request successful")
   name := r.FormValue("name")
   address := r.FormValue("address")
-  SDP := r.FormValue("SDP")
+  clientSDP = r.FormValue("SDP")
 
+  signal.Decode(clientSDP, &offer)
 
   //fmt.Printf("Name = " + name + "\n")
   //fmt.Printf("Address = " + address + "\n")
@@ -61,8 +63,8 @@ func main() {
         fmt.Println("Listening on port 80...")
         err := http.ListenAndServe(":80", nil)
         if err != nil {
-                        //panic(err)
-                        log.Fatal(err)
+                        panic(err)
+                        //log.Fatal(err)
         }
 
 
@@ -82,7 +84,7 @@ func main() {
 
         // Wait for the offer to be pasted
         offer := webrtc.SessionDescription{}
-        signal.Decode(signal.MustReadStdin(), &offer)
+        //signal.Decode(signal.MustReadStdin(), &offer)
 
         // Create a new RTCPeerConnection
         mmalParams, err := mmal.NewParams()
