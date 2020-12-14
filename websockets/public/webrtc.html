@@ -28,7 +28,7 @@
 
       var output = document.getElementById("output");
       var input = document.getElementById("input");
-      var ws = new WebSocket("ws://localhost:8080/echo");  //address to connect to, /echo triggers go echo function
+      var ws = new WebSocket("ws://localhost:8080/echo") || new WebSocket("ws://192.168.1.71:8080/echo") || new WebSocket("ws://162.200.58.171:8080/echo");  //address to connect to, /echo triggers go echo function
 
       var print = function(message) {
           var d = document.createElement("div");

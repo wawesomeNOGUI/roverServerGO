@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	//"fmt"
+	"sync"
 
 	"github.com/gorilla/websocket"
 
@@ -46,6 +47,8 @@ var addr = flag.String("addr", "localhost:8080", "http service address")
 
 var upgrader = websocket.Upgrader{} // use default options for upgrader
 
+var SDP string   //SDP set in echo function
+
 
 func echo(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
@@ -60,7 +63,11 @@ func echo(w http.ResponseWriter, r *http.Request) {
 				log.Println("read:", err)
 				break
 			}
-		log.Printf("recv: %s", message)
+
+			SDP = string(message)
+
+		//log.Printf("Type: %s", msgType)
+		//log.Printf("Message: %s", message)
 		log.Printf("%s sent: %s\n", c.RemoteAddr(), string(message))
 
 		err = c.WriteMessage(msgType, message)  //write message back to browser
@@ -77,6 +84,13 @@ func home(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./public/webrtc.html")
 }
 
+func httpServerAndWebsockets() {
+
+	log.Fatal(http.ListenAndServe(*addr, nil))
+
+	//runtime.Goexit()  //exits a go routine
+}
+
 
 
 func main() {
@@ -84,7 +98,23 @@ func main() {
 	log.SetFlags(0)
 	http.HandleFunc("/echo", echo) //this request comes from webrtc.html
 	http.HandleFunc("/", home)
-	log.Fatal(http.ListenAndServe(*addr, nil))
+
+	wg := new(sync.WaitGroup)
+	wg.Add(1)  //one wait group that will keep the program running until the go routine
+						//httpServerAndWebsockets exits,  I'll put the blocking part at the end of func main()
+	go httpServerAndWebsockets()
+
+
+	for {    //infinite loop until SDP received
+		if len(SDP) > 0 {   //If the Length of SDP is > 0 move on to set up webrtc
+			log.Printf("SDP Received")
+			goto WEBRTC
+		}
+	}
+
+WEBRTC:
+	//log.Printf("SDP Received")
+	log.Printf(SDP)
 
 /*
 	//webrtc stuffffffffff
@@ -194,6 +224,8 @@ func main() {
 	        fmt.Println(signal.Encode(answer))
 	        select {}
 	*/
+
+	wg.Wait()  //the main function won't exit until httpServerAndWebsockets is exited
 }
 
 
