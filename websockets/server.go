@@ -12,7 +12,7 @@ import (
 	"log"
 	"net/http"
 	//"fmt"
-	"sync"
+	//"sync"
 
 	"github.com/gorilla/websocket"
 
@@ -57,25 +57,149 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer c.Close()
-	for {
-		 msgType, message, err := c.ReadMessage()
-			if err != nil {
+
+	//for {   //infinite loop to wait for browser's SDP
+
+		 msgType, message, err2 := c.ReadMessage()   //ReadMessage blocks until message received
+			if err2 != nil {
 				log.Println("read:", err)
-				break
+				//break
 			}
 
 			SDP = string(message)
 
 		//log.Printf("Type: %s", msgType)
 		//log.Printf("Message: %s", message)
-		log.Printf("%s sent: %s\n", c.RemoteAddr(), string(message))
+		log.Printf("%s sent: %s\n", c.RemoteAddr(), string(message), msgType)
 
+	//}
+
+
+/*
+		//webrtc stuffffffffff
+
+		        config := webrtc.Configuration{
+		                ICEServers: []webrtc.ICEServer{
+		                        {
+		                                URLs: []string{"stun:stun.l.google.com:19302"},
+		                        },
+		                },
+		        }
+
+		        // Wait for the offer to be pasted
+		        offer := webrtc.SessionDescription{}
+		        //signal.Decode(signal.MustReadStdin(), &offer)
+						signal.Decode(SDP, &offer)   //set offer to the decoded SDP
+
+		        // Create a new RTCPeerConnection
+		        mmalParams, err := mmal.NewParams()
+		        if err != nil {
+		                panic(err)
+		        }
+		        mmalParams.BitRate = 500_000 // 500kbps
+
+
+		       // opusParams, err := opus.NewParams()
+		      //  if err != nil {
+		      //          panic(err)
+		      //  }
+
+		        codecSelector := mediadevices.NewCodecSelector(
+		                mediadevices.WithVideoEncoders(&mmalParams),
+		                //mediadevices.WithAudioEncoders(&opusParams),
+		        )
+
+		        mediaEngine := webrtc.MediaEngine{}
+		        codecSelector.Populate(&mediaEngine)
+		        if err := mediaEngine.PopulateFromSDP(offer); err != nil {
+		                panic(err)
+		        }
+		        api := webrtc.NewAPI(webrtc.WithMediaEngine(mediaEngine))
+		        peerConnection, err := api.NewPeerConnection(config)
+		        if err != nil {
+		                panic(err)
+		        }
+
+		        // Set the handler for ICE connection state
+		        // This will notify you when the peer has connected/disconnected
+		        peerConnection.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
+		                fmt.Printf("Connection State has changed %s \n", connectionState.String())
+		        })
+
+		        s, err := mediadevices.GetUserMedia(mediadevices.MediaStreamConstraints{
+		                Video: func(c *mediadevices.MediaTrackConstraints) {
+		                        c.FrameFormat = prop.FrameFormat(frame.FormatYUY2)
+		                        c.Width = prop.Int(640)
+		                        c.Height = prop.Int(480)
+		                },
+		                Audio: func(c *mediadevices.MediaTrackConstraints) {
+		                },
+		                Codec: codecSelector,
+		        })
+		        if err != nil {
+		                panic(err)
+		        }
+
+		        for _, tracker := range s.GetTracks() {
+		                tracker.OnEnded(func(err error) {
+		                        fmt.Printf("Track (ID: %s) ended with error: %v\n",
+		                                tracker.ID(), err)
+		                })
+
+		                // In Pion/webrtc v3, bind will be called automatically after SDP negotiation
+		                webrtcTrack, err := tracker.Bind(peerConnection)
+		                if err != nil {
+		                        panic(err)
+		                }
+
+		                _, err = peerConnection.AddTransceiverFromTrack(webrtcTrack,
+		                        webrtc.RtpTransceiverInit{
+		                                Direction: webrtc.RTPTransceiverDirectionSendonly,
+		                        },
+		                )
+		                if err != nil {
+		                        panic(err)
+		                }
+		        }
+
+		        // Set the remote SessionDescription
+		        err = peerConnection.SetRemoteDescription(offer)
+		        if err != nil {
+		                panic(err)
+		        }
+
+		        // Create an answer
+		        answer, err := peerConnection.CreateAnswer(nil)
+		        if err != nil {
+		                panic(err)
+		        }
+
+		        // Sets the LocalDescription, and starts our UDP listeners
+		        err = peerConnection.SetLocalDescription(answer)
+		        if err != nil {
+		                panic(err)
+		        }
+
+		        // Output the answer in base64 so we can paste it in browser
+		        log.Println(signal.Encode(answer))
+
+						err = c.WriteMessage(msgType, signal.Encode(answer))  //write message back to browser
+							if err != nil {
+								log.Println("write:", err)
+								//break
+							}
+
+*/
+
+
+/*
 		err = c.WriteMessage(msgType, message)  //write message back to browser
 			if err != nil {
 				log.Println("write:", err)
 				break
 			}
-	}
+*/
+	//}
 }
 
 
@@ -99,133 +223,18 @@ func main() {
 	http.HandleFunc("/echo", echo) //this request comes from webrtc.html
 	http.HandleFunc("/", home)
 
-	wg := new(sync.WaitGroup)
-	wg.Add(1)  //one wait group that will keep the program running until the go routine
+	//wg := new(sync.WaitGroup)
+	//wg.Add(1)  //one wait group that will keep the program running until the go routine
 						//httpServerAndWebsockets exits,  I'll put the blocking part at the end of func main()
 	go httpServerAndWebsockets()
 
 
-	for {    //infinite loop until SDP received
-		if len(SDP) > 0 {   //If the Length of SDP is > 0 move on to set up webrtc
-			log.Printf("SDP Received")
-			goto WEBRTC
-		}
-	}
-
-WEBRTC:
-	//log.Printf("SDP Received")
-	log.Printf(SDP)
-
-/*
-	//webrtc stuffffffffff
-
-	        config := webrtc.Configuration{
-	                ICEServers: []webrtc.ICEServer{
-	                        {
-	                                URLs: []string{"stun:stun.l.google.com:19302"},
-	                        },
-	                },
-	        }
-
-	        // Wait for the offer to be pasted
-	        offer := webrtc.SessionDescription{}
-	        //signal.Decode(signal.MustReadStdin(), &offer)
-
-	        // Create a new RTCPeerConnection
-	        mmalParams, err := mmal.NewParams()
-	        if err != nil {
-	                panic(err)
-	        }
-	        mmalParams.BitRate = 500_000 // 500kbps
 
 
-	       // opusParams, err := opus.NewParams()
-	      //  if err != nil {
-	      //          panic(err)
-	      //  }
+					select {}  //wait until go routines done??
 
-	        codecSelector := mediadevices.NewCodecSelector(
-	                mediadevices.WithVideoEncoders(&mmalParams),
-	                //mediadevices.WithAudioEncoders(&opusParams),
-	        )
 
-	        mediaEngine := webrtc.MediaEngine{}
-	        codecSelector.Populate(&mediaEngine)
-	        if err := mediaEngine.PopulateFromSDP(offer); err != nil {
-	                panic(err)
-	        }
-	        api := webrtc.NewAPI(webrtc.WithMediaEngine(mediaEngine))
-	        peerConnection, err := api.NewPeerConnection(config)
-	        if err != nil {
-	                panic(err)
-	        }
-
-	        // Set the handler for ICE connection state
-	        // This will notify you when the peer has connected/disconnected
-	        peerConnection.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
-	                fmt.Printf("Connection State has changed %s \n", connectionState.String())
-	        })
-
-	        s, err := mediadevices.GetUserMedia(mediadevices.MediaStreamConstraints{
-	                Video: func(c *mediadevices.MediaTrackConstraints) {
-	                        c.FrameFormat = prop.FrameFormat(frame.FormatYUY2)
-	                        c.Width = prop.Int(640)
-	                        c.Height = prop.Int(480)
-	                },
-	                Audio: func(c *mediadevices.MediaTrackConstraints) {
-	                },
-	                Codec: codecSelector,
-	        })
-	        if err != nil {
-	                panic(err)
-	        }
-
-	        for _, tracker := range s.GetTracks() {
-	                tracker.OnEnded(func(err error) {
-	                        fmt.Printf("Track (ID: %s) ended with error: %v\n",
-	                                tracker.ID(), err)
-	                })
-
-	                // In Pion/webrtc v3, bind will be called automatically after SDP negotiation
-	                webrtcTrack, err := tracker.Bind(peerConnection)
-	                if err != nil {
-	                        panic(err)
-	                }
-
-	                _, err = peerConnection.AddTransceiverFromTrack(webrtcTrack,
-	                        webrtc.RtpTransceiverInit{
-	                                Direction: webrtc.RTPTransceiverDirectionSendonly,
-	                        },
-	                )
-	                if err != nil {
-	                        panic(err)
-	                }
-	        }
-
-	        // Set the remote SessionDescription
-	        err = peerConnection.SetRemoteDescription(offer)
-	        if err != nil {
-	                panic(err)
-	        }
-
-	        // Create an answer
-	        answer, err := peerConnection.CreateAnswer(nil)
-	        if err != nil {
-	                panic(err)
-	        }
-
-	        // Sets the LocalDescription, and starts our UDP listeners
-	        err = peerConnection.SetLocalDescription(answer)
-	        if err != nil {
-	                panic(err)
-	        }
-
-	        // Output the answer in base64 so we can paste it in browser
-	        fmt.Println(signal.Encode(answer))
-	        select {}
-	*/
-
-	wg.Wait()  //the main function won't exit until httpServerAndWebsockets is exited
+	//wg.Wait()  //the main function won't exit until httpServerAndWebsockets is exited
 }
 
 

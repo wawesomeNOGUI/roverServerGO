@@ -1,3 +1,8 @@
+// Copyright 2015 The Gorilla WebSocket Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// +build ignore
 
 package main
 
@@ -38,7 +43,7 @@ import (
 
 )
 
-var addr = flag.String("addr", ":8080", "http service address")
+var addr = flag.String("addr", ":80", "http service address")
 
 var upgrader = websocket.Upgrader{} // use default options for upgrader
 
@@ -197,11 +202,12 @@ func echo(w http.ResponseWriter, r *http.Request) {
         //}
 }
 
-
+/*
 func home(w http.ResponseWriter, r *http.Request) {
         //homeTemplate.Execute(w, "ws://"+r.Host+"/echo")
         http.ServeFile(w, r, "./public/webrtc.html")
 }
+*/
 
 func httpServerAndWebsockets() {
 
@@ -215,8 +221,10 @@ func httpServerAndWebsockets() {
 func main() {
         flag.Parse()
         log.SetFlags(0)
+
+        fileServer := http.FileServer(http.Dir("./public"))
         http.HandleFunc("/echo", echo) //this request comes from webrtc.html
-        http.HandleFunc("/", home)
+        http.Handle("/", fileServer)
 
         //wg := new(sync.WaitGroup)
         //wg.Add(1)  //one wait group that will keep the program running until the go routine
