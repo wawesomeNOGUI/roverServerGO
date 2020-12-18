@@ -75,7 +75,10 @@ func echo(w http.ResponseWriter, r *http.Request) {
         //}
 
 
-
+                //maybe put the stuff below that sets up the camera (the mmal
+                // stuff and codec selctor) into the main function so multiple
+                //webrtc connections can be made but all use the same camera stream
+                
                 //webrtc stuffffffffff
 
                         config := webrtc.Configuration{
