@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
   <body>
@@ -98,6 +99,7 @@
           document.getElementById('logs').innerHTML += msg + '<br>'
         }
 
+        //video player
         pc.ontrack = event => {
           const el = document.createElement(event.track.kind)
           el.srcObject = event.streams[0]
