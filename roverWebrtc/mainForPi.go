@@ -12,7 +12,7 @@ import (
         "log"
         "net/http"
         "fmt"
-        //"sync"
+        "strings"
 
         "github.com/gorilla/websocket"
 
@@ -58,9 +58,8 @@ func echo(w http.ResponseWriter, r *http.Request) {
         }
         defer c.Close()
 
-        //for {   //infinite loop to wait for browser's SDP
 
-                 msgType, message, err2 := c.ReadMessage()   //ReadMessage blocks until message received
+                 msgType, message, err2 := c.ReadMessage()   //ReadMessage blocks until SDP message received
                         if err2 != nil {
                                 log.Println("read:", err)
                                 //break
@@ -70,9 +69,9 @@ func echo(w http.ResponseWriter, r *http.Request) {
 
                 //log.Printf("Type: %s", msgType)
                 //log.Printf("Message: %s", message)
-                log.Printf("%s sent: %s\n", c.RemoteAddr(), string(message), msgType)
+                log.Printf("%s sent: %s\n", c.RemoteAddr(), SDP, msgType)
 
-        //}
+
 
 
 
@@ -180,17 +179,56 @@ func echo(w http.ResponseWriter, r *http.Request) {
                                 panic(err)
                         }
 
-                        // Output the answer in base64 so we can paste it in browser
+                        // Output the answer in base64
                         log.Println(signal.Encode(answer))
 
-                                                err = c.WriteMessage( msgType, []byte(signal.Encode(answer)) )  //write message back to browser
-                                                        if err != nil {
-                                                                log.Println("write:", err)
-                                                                //break
-                                                        }
+                        err = c.WriteMessage( msgType, []byte(signal.Encode(answer)) )  //write message back to browser
+                                if err != nil {                                         //[]byte() creates a copy of the string in []byte format
+                                        log.Println("write:", err)
+                                        //break
+                                }
 
 
 
+                        //Now Listen For User Rover Controls
+                        var control string
+
+                        for{
+                          msgType, message, err2 = c.ReadMessage()   //ReadMessage blocks until message received
+                                 if err2 != nil {
+                                         log.Println("read:", err)
+                                         break
+                                 }
+
+                          control = string(message)
+
+                          if strings.HasPrefix(control, "!") {
+                            //Turning
+                            if control == "!l" {
+                              //go left if right pin is up
+                            } else if control == "!r" {
+                              //go right if left pin is up
+                            }
+
+                            //Forwards or Backwards
+                            if control == "!f" {
+                              //go forwards if back pin is up
+                            } else if control == "!b" {
+                              //go backwards if for pin is up
+                            }
+
+                            //Stop Movement || Turning
+                            if control == "!keyUpT" {
+                              //pull turn pins down
+                            }
+
+                            if control == "!keyUpM" {
+                              //pull move pins down
+                            }
+
+                          }
+
+                        }
 
 /*
                 err = c.WriteMessage(msgType, message)  //write message back to browser

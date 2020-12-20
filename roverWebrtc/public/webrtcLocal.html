@@ -112,6 +112,7 @@
           if (event.candidate === null) {
             document.getElementById('localSessionDescription').value = btoa(JSON.stringify(pc.localDescription))
             ws.send(btoa(JSON.stringify(pc.localDescription)));
+            console.log(JSON.stringify(pc.localDescription));
           }
         }
 

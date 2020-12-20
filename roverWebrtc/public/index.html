@@ -42,6 +42,9 @@
 <script>
   window.addEventListener("load", function(evt) {
 
+    var keysDown = {};
+    var keyToggle = false;
+
       var output = document.getElementById("output");
       var input = document.getElementById("input");
       var ws = new WebSocket("ws://162.200.58.171:80/echo");  //address to connect to, /echo triggers go echo function
@@ -138,7 +141,52 @@
           }
         }
 
+//=================Rover Controls=========================
+     function keyPress() {
+      for(var key in keysDown) {
+          var value = Number(key);
+            //var value = keysDown[0];
+
+         if (value == 65 || value == 37) {
+               //A || ←
+               ws.send('!l');
+         } else if(value == 68 || value == 39){
+               //D || →
+               ws.send('!r');
+         } else if(value == 87 || value == 38){
+                              //W || ↑
+              ws.send('!f');
+         } else if(value == 83 || value == 40){
+              //S || ↓
+              ws.send('!b');
+         }
+
+      }
+
+    };
+
+});
+
+
+window.addEventListener("keydown", function (event) {
+    if(keyToggle == false || keysDown[event.keyCode] == undefined){
+      keysDown[event.keyCode] = true;
+      keyToggle = true;
+      keyPress();
+    }
   });
+
+
+  window.addEventListener("keyup", function (event) {
+      delete keysDown[event.keyCode];
+      keyToggle = false;
+      if(event.keyCode == 68 || event.keyCode == 39 || event.keyCode == 65 || event.keyCode == 37){
+          ws.send('!keyUpT');  //turn
+      }else{
+          ws.send('!keyUpM');  //move
+      }
+  });
+
 </script>
 
 </html>
