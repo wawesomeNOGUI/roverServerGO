@@ -71,8 +71,8 @@ func echo(w http.ResponseWriter, r *http.Request) {
                         if err != nil {
                                 panic(err)
                         }
-                        //mmalParams.BitRate = 500_000 // 500kbps
-                        mmalParams.BitRate = 0
+                        mmalParams.BitRate = 1000_000 // 500kbps
+                        //mmalParams.BitRate = 0
 
                        // opusParams, err := opus.NewParams()
                       //  if err != nil {
