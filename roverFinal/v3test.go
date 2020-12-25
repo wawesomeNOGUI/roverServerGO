@@ -254,7 +254,7 @@ func httpServerAndWebsockets() {
 //==================Pin Setup===================================================
 //Initialize pins, Pin refers to the bcm2835 pin, not the physical pin on the raspberry pi header
 var (
-	pinB = rpio.Pin(12)  //Backwards
+  pinB = rpio.Pin(12)  //Backwards
   pinF = rpio.Pin(13)  //Forwards
   pinR = rpio.Pin(5)  //Steer Right
   pinL = rpio.Pin(6)  //Steer Left
@@ -274,8 +274,18 @@ func main() {
         // Unmap gpio memory when main() exits
 	      defer rpio.Close()
 
-        //Initialize a pin, pin refers to the bcm2835 pin, not the physical pin on the raspberry pi header
-
+        //Set Pins to mode Output
+        pinB.Output()
+        pinF.Output()
+        pinR.Output()
+        pinL.Output()
+        
+        pinV.Output()
+          pinV.High()
+        pinPB.Output()
+          pinPB.High()
+        pinPA.Output()
+          pinPA.High()
 
 
         flag.Parse()
