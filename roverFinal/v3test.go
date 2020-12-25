@@ -9,6 +9,7 @@ import (
         //"sync"
         "time"
         "os"
+        "strings"
 
         "github.com/gorilla/websocket"
 
@@ -281,7 +282,7 @@ func main() {
         err := rpio.Open()
         if err != nil {
           fmt.Println(err)
-          os.exit(1)
+          os.Exit(1)
         }
         // Unmap gpio memory when main() exits
 	      defer rpio.Close()
