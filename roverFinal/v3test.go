@@ -213,31 +213,43 @@ func echo(w http.ResponseWriter, r *http.Request) {
 
                   control = string(message)
 
-                  if strings.HasPrefix(control, "!") {
-                    //Turning
-                    if control == "!l" {
-                      //go left if right pin is up
-                    } else if control == "!r" {
-                      //go right if left pin is up
-                    }
+                    if strings.HasPrefix(control, "!") {
+                        //Turning
+                        if control == "!l" {
+                          //go left if right pin is up
+                          pinR.Low()
+                          pinL.High()
+                        } else if control == "!r" {
+                          //go right if left pin is up
+                          pinL.Low()
+                          pinR.High()
+                        }
 
-                    //Forwards or Backwards
-                    if control == "!f" {
-                      //go forwards if back pin is up
-                    } else if control == "!b" {
-                      //go backwards if for pin is up
-                    }
+                        //Forwards or Backwards
+                        if control == "!f" {
+                          //go forwards if back pin is up
+                          pinB.Low()
+                          pinF.High()
+                        } else if control == "!b" {
+                          //go backwards if forwards pin is up
+                          pinF.Low()
+                          pinB.High()
+                        }
 
-                    //Stop Movement || Turning
-                    if control == "!keyUpT" {
-                      //pull turn pins down
-                    }
+                        //Stop Movement || Stop Turning
+                        if control == "!keyUpT" {
+                          //pull turn pins down
+                          pinR.Low()
+                          pinL.Low()
+                        }
 
-                    if control == "!keyUpM" {
-                      //pull move pins down
-                    }
+                        if control == "!keyUpM" {
+                          //pull move pins down
+                          pinF.Low()
+                          pinB.Low()
+                        }
 
-                  }
+                    }
 
                 }
 
@@ -279,7 +291,7 @@ func main() {
         pinF.Output()
         pinR.Output()
         pinL.Output()
-        
+
         pinV.Output()
           pinV.High()
         pinPB.Output()
