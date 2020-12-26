@@ -267,8 +267,8 @@ func httpServerAndWebsockets() {
 //==================Pin Setup===================================================
 //Initialize pins, Pin refers to the bcm2835 pin, not the physical pin on the raspberry pi header
 var (
-  pinB = rpio.Pin(12)  //Backwards
-  pinF = rpio.Pin(13)  //Forwards
+  pinB = rpio.Pin(13)  //Backwards
+  pinF = rpio.Pin(12)  //Forwards
   pinR = rpio.Pin(5)  //Steer Right
   pinL = rpio.Pin(6)  //Steer Left
   pinV = rpio.Pin(0)  //Vcc pin to tell controller what the logic voltage is
