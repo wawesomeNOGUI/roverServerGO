@@ -172,27 +172,29 @@
 
     };
 
-  });
+    window.addEventListener("keydown", function (event) {
+        if(keyToggle == false || keysDown[event.keyCode] == undefined){
+          keysDown[event.keyCode] = true;
+          keyToggle = true;
+          keyPress();
+        }
+      });
 
 
-window.addEventListener("keydown", function (event) {
-    if(keyToggle == false || keysDown[event.keyCode] == undefined){
-      keysDown[event.keyCode] = true;
-      keyToggle = true;
-      keyPress();
-    }
-  });
+      window.addEventListener("keyup", function (event) {
+          delete keysDown[event.keyCode];
+          keyToggle = false;
+          if(event.keyCode == 68 || event.keyCode == 39 || event.keyCode == 65 || event.keyCode == 37){
+              ws.send('!keyUpT');  //turn
+          }else{
+              ws.send('!keyUpM');  //move
+          }
+      });
+      
+});
 
 
-  window.addEventListener("keyup", function (event) {
-      delete keysDown[event.keyCode];
-      keyToggle = false;
-      if(event.keyCode == 68 || event.keyCode == 39 || event.keyCode == 65 || event.keyCode == 37){
-          ws.send('!keyUpT');  //turn
-      }else{
-          ws.send('!keyUpM');  //move
-      }
-  });
+
 </script>
 
 </html>
